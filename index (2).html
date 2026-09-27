@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CampusCanteen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF7EF; --surface:#FFFFFF; --ink:#241C15; --muted:#8A7F6E;
+  --primary:#C1440E; --primary-ink:#FFFFFF; --accent:#2F6B4F;
+  --border:#E7DFCF; --bad:#B3261E; --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#171310; --surface:#211B15; --ink:#F1E9DC; --muted:#A99C89;
+    --border:#3A2F24; --primary:#FF7A42; --accent:#4CAF7D;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#171310; --surface:#211B15; --ink:#F1E9DC; --muted:#A99C89;
+  --border:#3A2F24; --primary:#FF7A42; --accent:#4CAF7D;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);line-height:1.45;}
+h1,h2,h3{font-family:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;margin:0 0 8px;line-height:1.15;}
+p{color:var(--muted);margin:0 0 12px;}
+a{cursor:pointer;color:var(--primary);text-decoration:none;}
+button{font:inherit;}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+.input{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--ink);margin-bottom:12px;font-size:15px;}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px;}
+.btn{display:inline-block;border-radius:10px;padding:11px 18px;border:1px solid var(--primary);cursor:pointer;font-weight:600;font-size:15px;text-align:center;}
+.btn-primary{background:var(--primary);color:var(--primary-ink);}
+.btn-outline{background:transparent;color:var(--primary);}
+.btn-block{width:100%;display:block;}
+.btn-sm{padding:7px 12px;font-size:13px;}
+.btn[disabled]{opacity:.5;cursor:not-allowed;}
+.row-gap{display:flex;gap:8px;flex-wrap:wrap;}
+/* topbar */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;}
+.brand{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;cursor:pointer;}
+.brand .tag{font-size:11px;background:var(--primary);color:var(--primary-ink);padding:2px 8px;border-radius:20px;margin-left:6px;font-family:-apple-system,sans-serif;font-weight:600;}
+.nav-links{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+.nav-links a{color:var(--ink);font-weight:600;font-size:14px;}
+.nav-links a.active{color:var(--primary);}
+.page{max-width:880px;margin:0 auto;padding:26px 20px 60px;}
+.page-head{margin-bottom:16px;}
+/* landing */
+.landing .topnav{padding:16px 24px;border-bottom:1px solid var(--border);}
+.hero{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1.3fr 1fr;gap:36px;padding:50px 24px 20px;align-items:center;}
+.hero-text h1{font-size:38px;letter-spacing:-.5px;}
+.hero-ticket{display:flex;justify-content:center;}
+.ticket{border:2px dashed var(--primary);border-radius:14px;padding:22px 26px;text-align:center;background:var(--surface);max-width:260px;}
+.ticket-row{font-size:12px;color:var(--muted);letter-spacing:.5px;}
+.ticket-id{font-size:24px;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;color:var(--primary);margin:6px 0;}
+.role-select{max-width:1000px;margin:10px auto 0;padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;text-align:left;cursor:pointer;}
+.role-card:hover{border-color:var(--primary);}
+.role-emoji{font-size:32px;margin-bottom:8px;}
+.demo-note{max-width:1000px;margin:18px auto 40px;padding:0 24px;font-size:13px;color:var(--muted);text-align:center;}
+/* auth */
+.auth-page{min-height:calc(100vh - 20px);display:flex;align-items:center;justify-content:center;padding:30px 16px;}
+.auth-card{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;}
+.auth-brand{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;cursor:pointer;margin-bottom:14px;}
+.auth-links{text-align:right;font-size:13px;margin:-4px 0 14px;}
+.auth-switch{text-align:center;font-size:13px;margin-top:14px;color:var(--muted);}
+.form-err{color:var(--bad);font-size:13px;margin:-4px 0 10px;min-height:16px;}
+/* chips/search */
+.search{margin-bottom:14px;}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.chip{border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:20px;padding:7px 14px;font-size:13px;cursor:pointer;}
+.chip-active{background:var(--primary);border-color:var(--primary);color:var(--primary-ink);}
+/* food grid */
+.food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+.food-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;display:flex;gap:12px;}
+.food-card:hover{border-color:var(--primary);}
+.food-emoji{font-size:36px;}
+.food-info{flex:1;min-width:0;}
+.food-top{display:flex;justify-content:space-between;gap:8px;}
+.food-top h4{margin:0;font-size:16px;}
+.price{font-weight:700;color:var(--primary);white-space:nowrap;}
+.food-desc{font-size:13px;margin:4px 0 8px;}
+.food-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+.avail{color:var(--accent);font-weight:600;}
+.unavail{color:var(--bad);font-weight:600;}
+.empty{color:var(--muted);padding:30px 0;text-align:center;}
+/* detail */
+.back-link{background:none;border:none;color:var(--primary);font-weight:600;cursor:pointer;padding:0;margin-bottom:16px;}
+.detail-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;display:grid;grid-template-columns:120px 1fr;gap:20px;}
+.detail-emoji{font-size:70px;text-align:center;}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.qty-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;}
+.qty-ctrl{display:flex;align-items:center;gap:12px;}
+.qty-ctrl button{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;}
+/* summary/payment */
+.summary-card,.form-card,.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+.summary-row{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;}
+.summary-row.total{border-top:1px solid var(--border);margin-top:6px;padding-top:12px;font-weight:800;font-size:16px;}
+.profile-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.notice{background:var(--surface);border:1px solid var(--primary);border-radius:10px;padding:12px 14px;font-size:13px;margin-bottom:16px;}
+.fine-print{font-size:12px;color:var(--muted);}
+.pay-methods{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pay-opt{padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-weight:600;font-size:13px;}
+.pay-opt-active{border-color:var(--primary);color:var(--primary);}
+/* success/ready */
+.success-card{text-align:center;}
+.success-icon{font-size:44px;margin-bottom:6px;}
+.ready-box{background:var(--surface);border:1px solid var(--accent);border-radius:var(--radius);padding:20px;text-align:center;margin-bottom:16px;}
+.ready-box.done{border-color:var(--accent);}
+.pickup-only{font-size:12px;color:var(--muted);}
+.decline-box{background:var(--surface);border:1px solid var(--bad);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+/* timeline */
+.timeline{margin:20px 0;}
+.tl-step{display:flex;align-items:center;gap:14px;padding:6px 0;}
+.tl-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);flex-shrink:0;}
+.tl-step.tl-done .tl-dot{background:var(--accent);border-color:var(--accent);color:#fff;}
+.tl-step.tl-current .tl-dot{border-color:var(--primary);color:var(--primary);}
+.tl-label{font-size:14px;color:var(--muted);}
+.tl-step.tl-done .tl-label{color:var(--ink);font-weight:600;}
+/* order/menu cards */
+.order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;font-size:14px;}
+.order-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-family:'Bricolage Grotesque',sans-serif;}
+.order-card-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px;}
+.badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;}
+.b-wait{background:#F4E3C1;color:#7A5A00;}
+.b-go{background:#D9EEE0;color:#1F6B41;}
+.b-ready{background:#FFE1CC;color:var(--primary);}
+.b-done{background:#D9EEE0;color:#1F6B41;}
+.b-bad{background:#FBDCDA;color:var(--bad);}
+:root[data-theme="dark"] .b-wait,@media (prefers-color-scheme:dark){.b-wait{background:#4a3a12;color:#F4E3C1;}.b-go{background:#1c3e29;color:#c6ecd6;}.b-ready{background:#4a2c14;color:#ffcda3;}.b-done{background:#1c3e29;color:#c6ecd6;}.b-bad{background:#4a1e1c;color:#f7c3bf;}}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.stat-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;color:var(--primary);}
+.menu-table{margin-bottom:24px;}
+.menu-row{display:grid;grid-template-columns:44px 1.6fr .8fr .8fr 1fr auto;gap:10px;align-items:center;padding:10px 6px;border-bottom:1px solid var(--border);font-size:13px;}
+.menu-emoji{font-size:24px;}
+.menu-name{display:flex;flex-direction:column;}
+.menu-name span{font-size:11px;color:var(--muted);}
+.menu-actions{display:flex;gap:6px;}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* toast */
+#toast-root{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:50;display:flex;flex-direction:column;gap:8px;align-items:center;}
+.toast{background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:30px;font-size:13px;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;max-width:88vw;text-align:center;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.err{background:var(--bad);color:#fff;}
+@media (max-width:700px){
+  .hero{grid-template-columns:1fr;padding-top:30px;}
+  .role-select{grid-template-columns:1fr;}
+  .detail-card{grid-template-columns:1fr;text-align:center;}
+  .detail-row{text-align:left;}
+  .menu-row{grid-template-columns:1fr;text-align:left;}
+  .menu-emoji{display:none;}
+  .nav-links{gap:12px;font-size:13px;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast-root"></div>
+<script>
+const LS_KEY='cc_db_v2';
+function seed(){
+  return {
+    students:[{id:'s1',name:'Demo Student',enrollment:'CSE2026001',email:'demo.student@example.com',phone:'9999900000',password:'demo123'}],
+    merchants:[{id:'m1',canteenName:'Main Canteen',managerName:'Demo Manager',email:'canteen@example.com',phone:'9999911111',password:'demo123'}],
+    foods:[
+      {id:'f1',name:'Veg Burger',desc:'Freshly prepared vegetable burger with crispy patty, vegetables, cheese and special sauce.',category:'Fast Food',price:50,prep:10,available:true,emoji:'🍔',merchantId:'m1'},
+      {id:'f2',name:'Masala Dosa',desc:'Crisp rice-and-lentil crepe filled with spiced potato masala, served with sambar and chutney.',category:'Breakfast',price:60,prep:15,available:true,emoji:'🫓',merchantId:'m1'},
+      {id:'f3',name:'Chole Bhature',desc:'Fluffy fried bread served with a spicy chickpea curry.',category:'Meals',price:70,prep:15,available:true,emoji:'🍛',merchantId:'m1'},
+      {id:'f4',name:'Sandwich',desc:'Grilled vegetable sandwich with mint chutney.',category:'Snacks',price:40,prep:8,available:true,emoji:'🥪',merchantId:'m1'},
+      {id:'f5',name:'Cold Coffee',desc:'Chilled blended coffee topped with a scoop of ice cream.',category:'Drinks',price:45,prep:5,available:true,emoji:'☕',merchantId:'m1'},
+      {id:'f6',name:'Paneer Sandwich',desc:'Toasted sandwich stuffed with spiced paneer and vegetables.',category:'Snacks',price:60,prep:12,available:true,emoji:'🧀',merchantId:'m1'}
+    ],
+    orders:[]
+  };
+}
+let DB;
+function loadDB(){ try{ const raw=localStorage.getItem(LS_KEY); DB= raw? JSON.parse(raw): seed(); if(!raw) saveDB(); }catch(e){ DB=seed(); } }
+function saveDB(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){} }
+loadDB();
+
+let ST={view:'landing'};
+function $(id){return document.getElementById(id);}
+function uid(p){return p+Math.random().toString(36).slice(2,9);}
+function genOrderId(){return 'CC-2026-'+Math.floor(10000+Math.random()*89999);}
+function money(n){return '₹'+n;}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(msg,type){
+  const el=document.createElement('div'); el.className='toast'+(type?' '+type:''); el.textContent=msg;
+  $('toast-root').appendChild(el);
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>{el.classList.remove('show'); setTimeout(()=>el.remove(),300);},3000);
+}
+function currentStudent(){return DB.students.find(s=>s.id===ST.userId);}
+function currentMerchant(){return DB.merchants.find(m=>m.id===ST.userId);}
+function logout(){ST.role=null;ST.userId=null;nav('landing');}
+function nav(v,patch){ Object.assign(ST,patch||{}); ST.view=v; render(); window.scrollTo(0,0); }
+function badge(status){
+  const cls={Pending:'b-wait',Accepted:'b-go',Preparing:'b-go','Ready for Pickup':'b-ready',Completed:'b-done',Declined:'b-bad',
+    Paid:'b-go','Refund Processing':'b-wait',Refunded:'b-bad',Settled:'b-done'}[status]||'b-wait';
+  return `<span class="badge ${cls}">${status}</span>`;
+}
+
+function authShell(role,title,formHtml){
+  return `<div class="auth-page"><div class="auth-card">
+    <div class="auth-brand" onclick="nav('landing')">🍱 CampusCanteen</div>
+    <h2>${title}</h2>${formHtml}
+  </div></div>`;
+}
+function studentShell(active,s,content){
+  return `<div class="app-shell"><nav class="topbar">
+    <div class="brand" onclick="nav('sHome')">🍱 CampusCanteen</div>
+    <div class="nav-links">
+      <a class="${active==='home'?'active':''}" onclick="nav('sHome')">Home</a>
+      <a class="${active==='orders'?'active':''}" onclick="nav('myOrders')">My Orders</a>
+      <a class="${active==='profile'?'active':''}" onclick="nav('sProfile')">Profile</a>
+      <a onclick="logout()">Logout</a>
+    </div></nav><main class="page">${content}</main></div>`;
+}
+function merchantShell(active,m,content){
+  const tabs=[['mDash','Dashboard'],['mMenu','Food Menu'],['mOrders','Orders'],['mVerify','Verify Pickup'],['mPayments','Payments']];
+  return `<div class="app-shell"><nav class="topbar">
+    <div class="brand" onclick="nav('mDash')">🍱 CampusCanteen<span class="tag">Canteen</span></div>
+    <div class="nav-links">${tabs.map(([v,l])=>`<a class="${active===v?'active':''}" onclick="nav('${v}')">${l}</a>`).join('')}<a onclick="logout()">Logout</a></div>
+  </nav><main class="page">${content}</main></div>`;
+}
+
+/* ---------- Landing / Auth ---------- */
+function vLanding(){
+  return `<div class="landing">
+   <nav class="topnav"><div class="brand">🍱 CampusCanteen</div></nav>
+   <div class="hero">
+     <div class="hero-text">
+       <h1>Pre-order. Skip the queue.<br>Pick up fresh.</h1>
+       <p>Order ahead from your college canteen, pay online, and walk straight to the counter the moment your token's ready.</p>
+     </div>
+     <div class="hero-ticket"><div class="ticket">
+       <div class="ticket-row">ORDER ID</div><div class="ticket-id">CC-2026-48291</div>
+       <div class="ticket-row">STATUS · READY FOR PICKUP 🎉</div>
+     </div></div>
+   </div>
+   <div class="role-select">
+     <button class="role-card" onclick="nav('sLogin')"><div class="role-emoji">🎓</div><h3>Continue as Student</h3><p>Browse the menu, pre-order and track pickup.</p></button>
+     <button class="role-card" onclick="nav('mLogin')"><div class="role-emoji">👨‍🍳</div><h3>Continue as Canteen Management</h3><p>Manage the menu and fulfil incoming orders.</p></button>
+   </div>
+   <div class="demo-note">Demo credentials — Student: <b>CSE2026001</b> / <b>demo123</b> &nbsp;·&nbsp; Canteen: <b>canteen@example.com</b> / <b>demo123</b></div>
+  </div>`;
+}
+function forgotStudent(){toast("Password reset isn't wired up in this prototype yet.");}
+function forgotMerchant(){toast("Password reset isn't wired up in this prototype yet.");}
+
+function vSLogin(){ return authShell('student','Student Login',`
+  <label>College Enrollment Number</label><input id="li-enr" class="input" placeholder="CSE2026001">
+  <label>Password</label><input id="li-pw" class="input" type="password">
+  <button class="btn btn-primary btn-block" onclick="studentLogin()">Login</button>
+  <div class="auth-links"><a onclick="forgotStudent()">Forgot Password?</a></div>
+  <div class="auth-switch">New here? <a onclick="nav('sSignup')">Create Student Account</a></div>`); }
+
+function studentLogin(){
+  const enr=$('li-enr').value.trim(), pw=$('li-pw').value;
+  const s=DB.students.find(x=>x.enrollment.toLowerCase()===enr.toLowerCase() && x.password===pw);
+  if(!s){toast('Invalid enrollment number or password.','err');return;}
+  nav('sHome',{role:'student',userId:s.id}); toast('Welcome back, '+s.name+'!');
+}
+function vSSignup(){ return authShell('student','Create Student Account',`
+  <label>Student Name</label><input id="su-name" class="input">
+  <label>College Enrollment Number</label><input id="su-enr" class="input">
+  <label>Email</label><input id="su-email" class="input" type="email">
+  <label>Phone Number</label><input id="su-phone" class="input">
+  <label>Password</label><input id="su-pw" class="input" type="password">
+  <label>Confirm Password</label><input id="su-pw2" class="input" type="password">
+  <div id="su-err" class="form-err"></div>
+  <button class="btn btn-primary btn-block" onclick="studentSignup()">Create Account</button>
+  <div class="auth-switch">Already have an account? <a onclick="nav('sLogin')">Login</a></div>`); }
+function studentSignup(){
+  const name=$('su-name').value.trim(),enr=$('su-enr').value.trim(),email=$('su-email').value.trim(),phone=$('su-phone').value.trim(),pw=$('su-pw').value,pw2=$('su-pw2').value;
+  const err=$('su-err');
+  if(!name||!enr||!email||!phone||!pw||!pw2){err.textContent='Please fill in every field.';return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err.textContent='Enter a valid email address.';return;}
+  if(pw!==pw2){err.textContent='Passwords do not match.';return;}
+  if(DB.students.some(x=>x.enrollment.toLowerCase()===enr.toLowerCase())){err.textContent='An account with this enrollment number already exists.';return;}
+  const s={id:uid('s'),name,enrollment:enr,email,phone,password:pw};
+  DB.students.push(s); saveDB(); nav('sHome',{role:'student',userId:s.id}); toast('Account created — welcome, '+name+'!');
+}
+function vMLogin(){ return authShell('merchant','Canteen Management Login',`
+  <label>Email</label><input id="mli-email" class="input" type="email">
+  <label>Password</label><input id="mli-pw" class="input" type="password">
+  <button class="btn btn-primary btn-block" onclick="merchantLogin()">Login</button>
+  <div class="auth-links"><a onclick="forgotMerchant()">Forgot Password?</a></div>
+  <div class="auth-switch">New canteen? <a onclick="nav('mSignup')">Register Canteen</a></div>`); }
+function merchantLogin(){
+  const email=$('mli-email').value.trim().toLowerCase(), pw=$('mli-pw').value;
+  const m=DB.merchants.find(x=>x.email.toLowerCase()===email && x.password===pw);
+  if(!m){toast('Invalid email or password.','err');return;}
+  nav('mDash',{role:'merchant',userId:m.id}); toast('Welcome back, '+m.managerName+'!');
+}
+function vMSignup(){ return authShell('merchant','Register Canteen',`
+  <label>Canteen Name</label><input id="ms-cname" class="input">
+  <label>Manager Name</label><input id="ms-mname" class="input">
+  <label>Email</label><input id="ms-email" class="input" type="email">
+  <label>Phone Number</label><input id="ms-phone" class="input">
+  <label>Password</label><input id="ms-pw" class="input" type="password">
+  <label>Confirm Password</label><input id="ms-pw2" class="input" type="password">
+  <div id="ms-err" class="form-err"></div>
+  <button class="btn btn-primary btn-block" onclick="merchantSignup()">Register Canteen</button>
+  <div class="auth-switch">Already registered? <a onclick="nav('mLogin')">Login</a></div>`); }
+function merchantSignup(){
+  const cname=$('ms-cname').value.trim(),mname=$('ms-mname').value.trim(),email=$('ms-email').value.trim(),phone=$('ms-phone').value.trim(),pw=$('ms-pw').value,pw2=$('ms-pw2').value;
+  const err=$('ms-err');
+  if(!cname||!mname||!email||!phone||!pw||!pw2){err.textContent='Please fill in every field.';return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err.textContent='Enter a valid email address.';return;}
+  if(pw!==pw2){err.textContent='Passwords do not match.';return;}
+  if(DB.merchants.some(x=>x.email.toLowerCase()===email.toLowerCase())){err.textContent='An account with this email already exists.';return;}
+  const m={id:uid('m'),canteenName:cname,managerName:mname,email,phone,password:pw};
+  DB.merchants.push(m); saveDB(); nav('mDash',{role:'merchant',userId:m.id}); toast('Canteen registered — welcome, '+mname+'!');
+}
+
+/* ---------- Student: menu / order / payment / tracking ---------- */
+function foodCard(f){
+  return `<div class="food-card" onclick="nav('foodDetail',{modalFoodId:'${f.id}',qty:1})">
+    <div class="food-emoji">${f.emoji}</div>
+    <div class="food-info">
+      <div class="food-top"><h4>${esc(f.name)}</h4><span class="price">${money(f.price)}</span></div>
+      <p class="food-desc">${esc(f.desc)}</p>
+      <div class="food-meta"><span>⏱ ${f.prep} min</span><span class="${f.available?'avail':'unavail'}">${f.available?'Available':'Unavailable'}</span></div>
+    </div></div>`;
+}
+function vSHome(){
+  const s=currentStudent();
+  const cats=['All','Breakfast','Snacks','Meals','Drinks','Fast Food'];
+  const cat=ST.category||'All', q=(ST.search||'').toLowerCase();
+  const foods=DB.foods.filter(f=>(cat==='All'||f.category===cat)&&f.name.toLowerCase().includes(q));
+  return studentShell('home',s,`
+    <div class="page-head"><h2>Welcome back, ${esc(s.name)}!</h2><p>What would you like to eat today?</p></div>
+    <input class="input search" placeholder="Search food..." value="${esc(ST.search||'')}" oninput="ST.search=this.value;render();">
+    <div class="chip-row">${cats.map(c=>`<button class="chip ${c===cat?'chip-active':''}" onclick="ST.category='${c}';render();">${c}</button>`).join('')}</div>
+    <div class="food-grid">${foods.map(foodCard).join('')||'<div class="empty">No dishes match your search.</div>'}</div>`);
+}
+function vFoodDetail(){
+  const f=DB.foods.find(x=>x.id===ST.modalFoodId); if(!f) return vSHome();
+  const qty=ST.qty||1;
+  return studentShell('home',currentStudent(),`
+    <button class="back-link" onclick="nav('sHome')">← Back to menu</button>
+    <div class="detail-card"><div class="detail-emoji">${f.emoji}</div><div class="detail-body">
+      <h2>${esc(f.name)}</h2><p>${esc(f.desc)}</p>
+      <div class="detail-row"><span>Price</span><b>${money(f.price)}</b></div>
+      <div class="detail-row"><span>Preparation time</span><b>Approximately ${f.prep} min</b></div>
+      <div class="detail-row"><span>Availability</span><b class="${f.available?'avail':'unavail'}">${f.available?'Available':'Unavailable'}</b></div>
+      <div class="qty-row"><span>Quantity</span><div class="qty-ctrl">
+        <button onclick="ST.qty=Math.max(1,(ST.qty||1)-1);render();">−</button><span>${qty}</span>
+        <button onclick="ST.qty=(ST.qty||1)+1;render();">+</button></div></div>
+      <button class="btn btn-primary btn-block" ${f.available?'':'disabled'} onclick="preorder('${f.id}')">Pre-Order Now</button>
+    </div></div>`);
+}
+function preorder(foodId){
+  const f=DB.foods.find(x=>x.id===foodId), qty=ST.qty||1;
+  ST.pendingOrder={items:[{foodId:f.id,name:f.name,price:f.price,qty}],total:f.price*qty,prep:f.prep,merchantId:f.merchantId};
+  ST.qty=1; nav('orderSummary');
+}
+function vOrderSummary(){
+  const o=ST.pendingOrder; if(!o) return vSHome();
+  return studentShell('home',currentStudent(),`
+    <div class="page-head"><h2>Order Summary</h2></div>
+    <div class="summary-card">
+      ${o.items.map(i=>`<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.price*i.qty)}</span></div>`).join('')}
+      <div class="summary-row"><span>Preparation time</span><span>~${o.prep} min</span></div>
+      <div class="summary-row total"><span>Total</span><span>${money(o.total)}</span></div>
+    </div>
+    <div class="notice">You will need to collect this order from the college canteen yourself. CampusCanteen does not offer home delivery.</div>
+    <button class="btn btn-primary btn-block" onclick="nav('payment')">Proceed to Payment</button>`);
+}
+function vPayment(){
+  const o=ST.pendingOrder; if(!o) return vSHome();
+  const methods=['UPI','Card','Net Banking','Wallet'], sel=ST.payMethod||'UPI';
+  const fieldsFor={UPI:`<input class="input" placeholder="yourname@upi">`,Card:`<input class="input" placeholder="Card number">
+    <input class="input" placeholder="MM/YY · CVV">`,'Net Banking':`<input class="input" placeholder="Select your bank">`,Wallet:`<input class="input" placeholder="Wallet-linked mobile number">`};
+  return studentShell('home',currentStudent(),`
+    <div class="page-head"><h2>Payment</h2><p>Total amount: <b>${money(o.total)}</b></p></div>
+    <div class="pay-methods">${methods.map(m=>`<button class="pay-opt ${m===sel?'pay-opt-active':''}" onclick="ST.payMethod='${m}';render();">${m}</button>`).join('')}</div>
+    <div class="pay-fields">${fieldsFor[sel]}</div>
+    <p class="fine-print">Simulated payment for this prototype — no real card, UPI or banking details are stored or transmitted.</p>
+    <button class="btn btn-primary btn-block" onclick="pay()">Pay ${money(o.total)}</button>`);
+}
+function pay(){
+  const o=ST.pendingOrder, s=currentStudent();
+  const order={id:genOrderId(),studentId:s.id,merchantId:o.merchantId,items:o.items,total:o.total,prep:o.prep,
+    orderStatus:'Pending',paymentStatus:'Paid',payMethod:ST.payMethod||'UPI',createdAt:Date.now()};
+  DB.orders.unshift(order); saveDB(); ST.pendingOrder=null; ST.lastOrderId=order.id; nav('paySuccess');
+}
+function vPaySuccess(){
+  const o=DB.orders.find(x=>x.id===ST.lastOrderId); if(!o) return vSHome();
+  return studentShell('home',currentStudent(),`
+    <div class="success-card"><div class="success-icon">✅</div><h2>Payment Successful</h2>
+    <div class="ticket"><div class="ticket-row">ORDER ID</div><div class="ticket-id">${o.id}</div></div>
+    <div class="summary-card" style="text-align:left">
+      ${o.items.map(i=>`<div class="summary-row"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.price*i.qty)}</span></div>`).join('')}
+      <div class="summary-row"><span>Amount paid</span><span>${money(o.total)}</span></div>
+      <div class="summary-row"><span>Estimated prep time</span><span>~${o.prep} min</span></div>
+      <div class="summary-row"><span>Order status</span><span>${badge(o.orderStatus)}</span></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="nav('tracking',{trackId:'${o.id}'})">Track My Order</button></div>`);
+}
+function vTracking(){
+  const o=DB.orders.find(x=>x.id===ST.trackId);
+  if(!o) return studentShell('orders',currentStudent(),'<div class="empty">Order not found.</div>');
+  const steps=['Order Placed','Payment Confirmed','Accepted by Canteen','Preparing','Ready for Pickup','Picked Up'];
+  const idxMap={Pending:1,Accepted:2,Preparing:3,'Ready for Pickup':4,Completed:5};
+  const doneIdx=idxMap[o.orderStatus]??1;
+  return studentShell('orders',currentStudent(),`
+    <div class="page-head"><h2>Track Order</h2><p>${o.id}</p></div>
+    ${o.orderStatus==='Declined'?`
+      <div class="decline-box"><h3>Order Declined</h3><p>${esc(o.declineReason||'The canteen was unable to fulfil this order.')}</p><p>Payment status: ${badge(o.paymentStatus)}</p></div>
+    `:`
+      <div class="timeline">${steps.map((label,i)=>`<div class="tl-step ${i<=doneIdx?'tl-done':i===doneIdx+1?'tl-current':''}"><div class="tl-dot">${i<=doneIdx?'✓':''}</div><div class="tl-label">${label}</div></div>`).join('')}</div>
+      ${o.orderStatus==='Ready for Pickup'?`<div class="ready-box"><h3>Your Order Is Ready! 🎉</h3><p>Show Order ID <b>${o.id}</b> at the canteen counter to collect it.</p><p class="pickup-only">Pickup only — no home delivery.</p></div>`:''}
+      ${o.orderStatus==='Completed'?`<div class="ready-box done"><h3>Order Completed</h3><p>Enjoy your meal — payment settled.</p></div>`:''}
+    `}
+    <button class="btn btn-outline btn-block" onclick="nav('myOrders')">Back to My Orders</button>`);
+}
+function vMyOrders(){
+  const s=currentStudent(), orders=DB.orders.filter(o=>o.studentId===s.id);
+  return studentShell('orders',s,`<div class="page-head"><h2>My Orders</h2></div>
+    ${orders.length?orders.map(o=>`<div class="order-card">
+      <div class="order-card-top"><b>${o.id}</b>${badge(o.orderStatus)}</div>
+      <div>${o.items.map(i=>esc(i.name)+' × '+i.qty).join(', ')}</div>
+      <div class="order-card-bottom"><span>${money(o.total)} · ${badge(o.paymentStatus)}</span>
+      <button class="btn btn-outline btn-sm" onclick="nav('tracking',{trackId:'${o.id}'})">View Details</button></div>
+    </div>`).join(''):'<div class="empty">No orders yet — go grab something tasty.</div>'}`);
+}
+function vSProfile(){
+  const s=currentStudent();
+  return studentShell('profile',s,`<div class="page-head"><h2>Profile</h2></div>
+    <div class="profile-card">
+      <div class="profile-row"><span>Name</span><b>${esc(s.name)}</b></div>
+      <div class="profile-row"><span>Enrollment No.</span><b>${esc(s.enrollment)}</b></div>
+      <div class="profile-row"><span>Email</span><b>${esc(s.email)}</b></div>
+      <div class="profile-row"><span>Phone</span><b>${esc(s.phone)}</b></div>
+    </div>`);
+}
+
+/* ---------- Merchant ---------- */
+function vMDash(){
+  const m=currentMerchant(), orders=DB.orders.filter(o=>o.merchantId===m.id);
+  const pending=orders.filter(o=>o.orderStatus==='Pending').length;
+  const completed=orders.filter(o=>o.orderStatus==='Completed').length;
+  const revenue=orders.filter(o=>['Paid','Settled'].includes(o.paymentStatus)).reduce((a,o)=>a+o.total,0);
+  return merchantShell('mDash',m,`
+    <div class="page-head"><h2>Welcome, ${esc(m.managerName)}</h2><p>${esc(m.canteenName)}</p></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${orders.length}</div><div>Today's Orders</div></div>
+      <div class="stat-card"><div class="stat-num">${pending}</div><div>Pending Orders</div></div>
+      <div class="stat-card"><div class="stat-num">${completed}</div><div>Completed Orders</div></div>
+      <div class="stat-card"><div class="stat-num">${money(revenue)}</div><div>Today's Revenue</div></div>
+    </div>
+    ${pending?`<div class="notice">You have ${pending} order${pending>1?'s':''} waiting for a response. <a onclick="nav('mOrders')">Review orders →</a></div>`:''}`);
+}
+function vMMenu(){
+  const m=currentMerchant(), foods=DB.foods.filter(f=>f.merchantId===m.id);
+  return merchantShell('mMenu',m,`
+    <div class="page-head"><h2>Food Menu</h2></div>
+    <div class="menu-table">${foods.map(f=>`<div class="menu-row">
+      <div class="menu-emoji">${f.emoji}</div>
+      <div class="menu-name"><b>${esc(f.name)}</b><span>${f.category}</span></div>
+      <div>${money(f.price)}</div><div>${f.prep} min</div><div>${badge(f.available?'Available':'Unavailable')}</div>
+      <div class="menu-actions">
+        <button class="btn btn-outline btn-sm" onclick="toggleAvail('${f.id}')">${f.available?'Mark Unavailable':'Mark Available'}</button>
+        <button class="btn btn-outline btn-sm" onclick="deleteFood('${f.id}')">Delete</button>
+      </div></div>`).join('')}</div>
+    <div class="page-head"><h3>Add Food Item</h3></div>
+    <div class="form-card">
+      <label>Food Name</label><input id="af-name" class="input">
+      <label>Description</label><input id="af-desc" class="input">
+      <div class="form-row-2"><div><label>Category</label>
+        <select id="af-cat" class="input"><option>Breakfast</option><option>Snacks</option><option>Meals</option><option>Drinks</option><option>Fast Food</option></select></div>
+        <div><label>Emoji</label><input id="af-emoji" class="input" value="🍽" maxlength="2"></div></div>
+      <div class="form-row-2"><div><label>Price (₹)</label><input id="af-price" class="input" type="number"></div>
+        <div><label>Prep Time (min)</label><input id="af-prep" class="input" type="number"></div></div>
+      <button class="btn btn-primary" onclick="addFood()">Add Food</button>
+    </div>`);
+}
+function addFood(){
+  const m=currentMerchant();
+  const name=$('af-name').value.trim(),desc=$('af-desc').value.trim(),cat=$('af-cat').value;
+  const price=Number($('af-price').value),prep=Number($('af-prep').value),emoji=$('af-emoji').value.trim()||'🍽';
+  if(!name||!price||!prep){toast('Fill in name, price and prep time.','err');return;}
+  DB.foods.push({id:uid('f'),name,desc,category:cat,price,prep,available:true,emoji,merchantId:m.id});
+  saveDB(); toast(name+' added to the menu.'); render();
+}
+function toggleAvail(id){const f=DB.foods.find(x=>x.id===id);f.available=!f.available;saveDB();render();}
+function deleteFood(id){DB.foods=DB.foods.filter(x=>x.id!==id);saveDB();render();}
+function vMOrders(){
+  const m=currentMerchant(), orders=DB.orders.filter(o=>o.merchantId===m.id);
+  return merchantShell('mOrders',m,`<div class="page-head"><h2>Order Management</h2></div>
+    ${orders.length?orders.map(o=>{
+      const student=DB.students.find(s=>s.id===o.studentId);
+      return `<div class="order-card">
+        <div class="order-card-top"><b>${o.id}</b>${badge(o.orderStatus)}</div>
+        <div>${esc(student?student.name:'Student')} · ${o.items.map(i=>esc(i.name)+' × '+i.qty).join(', ')} · ${money(o.total)}</div>
+        <div class="order-card-bottom"><span>Prep ~${o.prep} min · ${badge(o.paymentStatus)}</span>
+          <div class="row-gap">
+            ${o.orderStatus==='Pending'?`<button class="btn btn-primary btn-sm" onclick="acceptOrder('${o.id}')">Accept Order</button><button class="btn btn-outline btn-sm" onclick="declineOrder('${o.id}')">Decline Order</button>`:''}
+            ${o.orderStatus==='Accepted'||o.orderStatus==='Preparing'?`<button class="btn btn-primary btn-sm" onclick="advanceOrder('${o.id}')">${o.orderStatus==='Accepted'?'Start Preparing':'Mark Ready for Pickup'}</button>`:''}
+          </div></div></div>`;
+    }).join(''):'<div class="empty">No orders yet.</div>'}`);
+}
+function acceptOrder(id){const o=DB.orders.find(x=>x.id===id);o.orderStatus='Accepted';saveDB();toast('Order '+id+' accepted.');render();}
+function advanceOrder(id){const o=DB.orders.find(x=>x.id===id);o.orderStatus=o.orderStatus==='Accepted'?'Preparing':'Ready for Pickup';saveDB();toast('Order '+id+' → '+o.orderStatus+'.');render();}
+function declineOrder(id){
+  const reasons=['Food unavailable','Too many orders','Canteen closed','Ingredient unavailable','Other'];
+  const reason=window.prompt('Reason for declining (optional):\n'+reasons.join(', '),reasons[0])||'Not specified';
+  const o=DB.orders.find(x=>x.id===id); o.orderStatus='Declined'; o.declineReason=reason; o.paymentStatus='Refund Processing';
+  saveDB(); render(); toast('Order '+id+' declined — refund processing.');
+  setTimeout(()=>{o.paymentStatus='Refunded';saveDB();if(ST.view==='mOrders')render();},2500);
+}
+function vMVerify(){
+  const m=currentMerchant(), r=ST.verifyResult;
+  return merchantShell('mVerify',m,`<div class="page-head"><h2>Order Collection Verification</h2></div>
+    <div class="form-card"><label>Enter Order ID</label>
+      <input id="vf-id" class="input" placeholder="CC-2026-XXXXX" value="${esc(ST.verifyId||'')}">
+      <button class="btn btn-primary" onclick="verifyOrder()">Verify Order</button></div>
+    ${r?(r.error?`<div class="decline-box"><p>${r.error}</p></div>`:`
+      <div class="ready-box done"><h3>Order Verified ✅</h3>
+        <div class="summary-card" style="text-align:left">
+          <div class="summary-row"><span>Order</span><span>${r.order.items.map(i=>esc(i.name)+' × '+i.qty).join(', ')}</span></div>
+          <div class="summary-row"><span>Student</span><span>${esc(r.student?r.student.name:'—')}</span></div>
+          <div class="summary-row"><span>Payment</span><span>${badge(r.order.paymentStatus)}</span></div>
+          <div class="summary-row"><span>Order status</span><span>${badge(r.order.orderStatus)}</span></div>
+        </div>
+        ${r.order.orderStatus==='Ready for Pickup'?`<button class="btn btn-primary btn-block" onclick="markCollected('${r.order.id}')">Mark as Collected</button>`:''}
+      </div>`):''}`);
+}
+function verifyOrder(){
+  const id=$('vf-id').value.trim(); ST.verifyId=id;
+  const o=DB.orders.find(x=>x.id===id);
+  ST.verifyResult=o?{order:o,student:DB.students.find(s=>s.id===o.studentId)}:{error:'No order found with that ID.'};
+  render();
+}
+function markCollected(id){
+  const o=DB.orders.find(x=>x.id===id); o.orderStatus='Completed'; o.paymentStatus='Settled'; saveDB();
+  ST.verifyResult=null; ST.verifyId=''; toast('Order '+id+' marked as collected.'); render();
+}
+function vMPayments(){
+  const m=currentMerchant(), orders=DB.orders.filter(o=>o.merchantId===m.id);
+  const total=orders.reduce((a,o)=>a+o.total,0);
+  const settled=orders.filter(o=>o.paymentStatus==='Settled').reduce((a,o)=>a+o.total,0);
+  const pending=orders.filter(o=>o.paymentStatus==='Paid').reduce((a,o)=>a+o.total,0);
+  const refunded=orders.filter(o=>o.paymentStatus==='Refunded').reduce((a,o)=>a+o.total,0);
+  return merchantShell('mPayments',m,`<div class="page-head"><h2>Payments</h2></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${money(total)}</div><div>Total Sales</div></div>
+      <div class="stat-card"><div class="stat-num">${money(settled)}</div><div>Settled</div></div>
+      <div class="stat-card"><div class="stat-num">${money(pending)}</div><div>Pending</div></div>
+      <div class="stat-card"><div class="stat-num">${money(refunded)}</div><div>Refunded</div></div>
+    </div>
+    ${orders.map(o=>`<div class="order-card"><div class="order-card-top"><b>${o.id}</b>${badge(o.paymentStatus)}</div><div>${money(o.total)} · ${badge(o.orderStatus)}</div></div>`).join('')||'<div class="empty">No transactions yet.</div>'}`);
+}
+
+const views={landing:vLanding,sLogin:vSLogin,sSignup:vSSignup,sHome:vSHome,foodDetail:vFoodDetail,orderSummary:vOrderSummary,
+  payment:vPayment,paySuccess:vPaySuccess,tracking:vTracking,myOrders:vMyOrders,sProfile:vSProfile,
+  mLogin:vMLogin,mSignup:vMSignup,mDash:vMDash,mMenu:vMMenu,mOrders:vMOrders,mVerify:vMVerify,mPayments:vMPayments};
+function render(){ $('app').innerHTML=(views[ST.view]||vLanding)(); }
+render();
+</script>
+</body>
+</html>
